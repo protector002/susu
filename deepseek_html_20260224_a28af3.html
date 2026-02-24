@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SUSU · prism</title>
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
+      background: #0b0710;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ---------- SPLASH SCREEN (animated masterpiece) ---------- */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 30% 40%, #1e1030, #0c0a1a 80%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      transition: opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    /* animated background particles (floating orbs) */
+    #splash::before {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 70, 200, 0.3) 0%, transparent 30%),
+                  radial-gradient(circle at 70% 20%, rgba(100, 200, 255, 0.4) 0%, transparent 40%),
+                  repeating-linear-gradient(45deg, transparent 0%, transparent 10%, rgba(255,255,255,0.02) 10.5%);
+      animation: pan 18s linear infinite;
+      opacity: 0.6;
+    }
+
+    @keyframes pan {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-10%, -10%) rotate(5deg); }
+    }
+
+    .splash-container {
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      filter: drop-shadow(0 0 40px rgba(160, 100, 255, 0.6));
+    }
+
+    /* top 18+ with floating animation */
+    .splash-18-top {
+      font-size: 7vw;
+      font-weight: 900;
+      background: linear-gradient(45deg, #f0f, #3cc, #f90, #f0f);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      background-size: 300% 300%;
+      animation: gradientFlow 8s ease infinite, float1 4s ease-in-out infinite;
+      letter-spacing: 8px;
+      transform-origin: center;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    /* SUSU with dramatic float and glow */
+    .splash-susu {
+      font-size: 16vw;
+      font-weight: 900;
+      background: linear-gradient(45deg, #ff66b2, #7a4bf5, #3cc6ff, #ff66b2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      background-size: 400% 400%;
+      animation: gradientFlow 6s ease infinite, float2 5s ease-in-out infinite;
+      letter-spacing: 12px;
+      line-height: 1;
+      margin: 0.5rem 0;
+      text-shadow: 0 0 30px rgba(255, 100, 200, 0.7);
+    }
+
+    /* bottom 18+ badges with motion */
+    .splash-18-bottom {
+      display: flex;
+      justify-content: center;
+      gap: 4vw;
+      margin-top: 2rem;
+    }
+
+    .splash-18-bottom div {
+      font-size: 7vw;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fcb045, #fd1d1d, #833ab4, #fcb045);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      background-size: 300% 300%;
+      animation: gradientFlow 7s ease infinite, float3 4.5s ease-in-out infinite;
+      letter-spacing: 6px;
+      transform-origin: center;
+    }
+
+    /* different float animations for each */
+    @keyframes float1 {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(1deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    @keyframes float2 {
+      0% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-15px) scale(1.02); }
+      100% { transform: translateY(0) scale(1); }
+    }
+    @keyframes float3 {
+      0% { transform: translateY(0) rotate(0deg) scale(1); }
+      50% { transform: translateY(-25px) rotate(-2deg) scale(1.05); }
+      100% { transform: translateY(0) rotate(0deg) scale(1); }
+    }
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* additional floating icons around splash (optional but nice) */
+    .floating-icon {
+      position: absolute;
+      font-size: 2.5rem;
+      color: rgba(255,255,255,0.2);
+      animation: orbit 16s linear infinite;
+      z-index: 5;
+    }
+    .icon1 { top: 15%; left: 10%; animation-delay: 0s; }
+    .icon2 { bottom: 20%; right: 12%; animation-delay: -4s; }
+    .icon3 { top: 30%; right: 20%; animation-delay: -8s; }
+    .icon4 { bottom: 35%; left: 18%; animation-delay: -2s; }
+
+    @keyframes orbit {
+      0% { transform: rotate(0deg) translate(80px) rotate(0deg); }
+      100% { transform: rotate(360deg) translate(80px) rotate(-360deg); }
+    }
+
+    /* ---------- MAIN CONTENT ---------- */
+    #main-content {
+      opacity: 0;
+      transition: opacity 1s ease-in;
+      padding: 2rem 1.5rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    #main-content.visible {
+      opacity: 1;
+    }
+
+    /* header with animated gradient & motion */
+    .main-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .main-header .top-18 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #f0f, #3cc, #f90);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientFlow 6s ease infinite, subtleFloat 4s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    .main-header .main-susu {
+      font-size: 6rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #ff66b2, #7a4bf5, #3cc6ff, #ff66b2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      background-size: 400% 400%;
+      animation: gradientFlow 6s ease infinite, subtleFloat2 5s ease-in-out infinite;
+      letter-spacing: 8px;
+      line-height: 1;
+    }
+
+    .main-header .bottom-18 {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 2rem;
+      font-weight: 900;
+      margin-top: 0.5rem;
+    }
+
+    .main-header .bottom-18 span {
+      background: linear-gradient(135deg, #fcb045, #fd1d1d, #833ab4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientFlow 7s ease infinite, subtleFloat 4.2s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    @keyframes subtleFloat {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes subtleFloat2 {
+      0% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-5px) scale(1.01); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    .sub-info {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 2rem 0 0;
+    }
+
+    .sub-info span {
+      background: rgba(20, 15, 30, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 0.6rem 2rem;
+      border-radius: 60px;
+      border: 1px solid rgba(255, 150, 200, 0.5);
+      color: #fff;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 20px rgba(255, 100, 200, 0.3);
+    }
+
+    .sub-info i {
+      background: linear-gradient(45deg, #f0f, #3cc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-size: 1.2rem;
+    }
+
+    /* video grid */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2.5rem;
+      margin: 3rem 0 4rem;
+    }
+
+    /* card – glass with animated border gradient */
+    .video-card {
+      background: rgba(20, 15, 30, 0.5);
+      backdrop-filter: blur(14px);
+      border-radius: 2.2rem;
+      padding: 1.5rem 1.5rem 2rem;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      box-shadow: 0 20px 30px -10px rgba(0,0,0,0.7);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-card::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      background: linear-gradient(45deg, #f0f, #3cc, #f90, #7a4bf5, #f0f);
+      background-size: 400% 400%;
+      border-radius: 2.4rem;
+      z-index: -1;
+      animation: borderGradient 8s ease infinite;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .video-card:hover::before {
+      opacity: 1;
+    }
+
+    .video-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      background: rgba(30, 22, 45, 0.7);
+    }
+
+    @keyframes borderGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .video-wrapper {
+      border-radius: 1.8rem;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      background: #120b18;
+      border: 2px solid rgba(255, 150, 200, 0.4);
+      box-shadow: 0 12px 0 #0b0610;
+      margin-bottom: 1.4rem;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .video-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(45deg, #ffb3d9, #b8a6ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .video-title i {
+      background: linear-gradient(45deg, #ff66b2, #7a4bf5);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-size: 1.8rem;
+      animation: iconPulse 3s infinite;
+    }
+
+    @keyframes iconPulse {
+      0% { transform: scale(1); text-shadow: 0 0 5px #ff66b2; }
+      50% { transform: scale(1.1); text-shadow: 0 0 20px #b8a6ff; }
+      100% { transform: scale(1); text-shadow: 0 0 5px #7a4bf5; }
+    }
+
+    .video-description {
+      color: #ccc2e0;
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .video-meta {
+      display: flex;
+      gap: 0.8rem;
+      margin-bottom: 1.8rem;
+      flex-wrap: wrap;
+    }
+
+    .video-meta span {
+      background: rgba(10, 5, 20, 0.7);
+      backdrop-filter: blur(4px);
+      color: #d9c7ff;
+      font-weight: 600;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid rgba(200, 130, 255, 0.5);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+
+    .video-meta i {
+      color: #f7a1c4;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: auto;
+    }
+
+    .watch-btn {
+      background: linear-gradient(145deg, #c45bff, #8f4aff);
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 0.9rem 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 8px 0 #4f2b7a, 0 0 20px #b881ff;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: center;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .watch-btn:hover {
+      background: linear-gradient(145deg, #d47aff, #a45eff);
+      transform: translateY(-3px);
+      box-shadow: 0 11px 0 #4f2b7a, 0 0 30px #d6a5ff;
+    }
+
+    .download-link {
+      background: rgba(15, 8, 24, 0.8);
+      backdrop-filter: blur(8px);
+      color: #f0e2ff;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 0.9rem 1.2rem;
+      border-radius: 50px;
+      border: 1.5px solid rgba(200, 130, 255, 0.6);
+      transition: 0.2s;
+      font-size: 1.1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 0 #2d1b3f;
+      flex: 0.7;
+      justify-content: center;
+    }
+
+    .download-link:hover {
+      background: #2e1b41;
+      transform: translateY(-3px);
+      box-shadow: 0 11px 0 #2d1b3f;
+      border-color: #f0a6ff;
+    }
+
+    /* footer */
+    .footer {
+      background: rgba(18, 12, 28, 0.7);
+      backdrop-filter: blur(12px);
+      border-radius: 5rem;
+      padding: 1.5rem 2.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 150, 200, 0.5);
+      box-shadow: 0 15px 0 #0f0a18;
+      margin-top: 4rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      color: #f0d0ff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .footer-links a:hover {
+      color: #ffc4f0;
+      text-shadow: 0 0 15px #f9f;
+    }
+
+    .age-badge {
+      background: linear-gradient(145deg, #f0f, #3cc);
+      color: #0b0710;
+      font-weight: 900;
+      padding: 0.5rem 2rem;
+      border-radius: 60px;
+      font-size: 1.5rem;
+      border: 2px solid rgba(255,255,255,0.5);
+      box-shadow: 0 7px 0 #7a4bf5;
+      animation: badgeGlow 2s infinite alternate;
+    }
+
+    @keyframes badgeGlow {
+      0% { box-shadow: 0 7px 0 #7a4bf5, 0 0 20px #f0f; }
+      100% { box-shadow: 0 7px 0 #7a4bf5, 0 0 40px #3cc; }
+    }
+
+    .empty-message {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #d7c0ff;
+      font-size: 2rem;
+      padding: 4rem;
+      background: rgba(20, 10, 30, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 4rem;
+      border: 1px solid rgba(255, 150, 200, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- SPLASH SCREEN (animated, colorful, floating) -->
+  <div id="splash">
+    <div class="floating-icon icon1"><i class="fa-regular fa-star"></i></div>
+    <div class="floating-icon icon2"><i class="fa-regular fa-moon"></i></div>
+    <div class="floating-icon icon3"><i class="fa-regular fa-sun"></i></div>
+    <div class="floating-icon icon4"><i class="fa-regular fa-gem"></i></div>
+    <div class="splash-container">
+      <div class="splash-18-top">18+</div>
+      <div class="splash-susu">SUSU</div>
+      <div class="splash-18-bottom">
+        <div>18+</div>
+        <div>18+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main-content">
+    <div class="main-header">
+      <div class="top-18">18+</div>
+      <div class="main-susu">SUSU</div>
+      <div class="bottom-18">
+        <span>18+</span>
+        <span>18+</span>
+      </div>
+      <div class="sub-info">
+        <span><i class="fa-solid fa-bolt"></i> MATRIX</span>
+        <span><i class="fa-regular fa-eye"></i> WATCH & DOWNLOAD</span>
+      </div>
+    </div>
+
+    <!-- dynamic video gallery -->
+    <div id="video-gallery" class="video-grid">
+      <div class="empty-message"><i class="fa-solid fa-spinner fa-pulse"></i> LOADING VIDEOS...</div>
+    </div>
+
+    <!-- footer -->
+    <div class="footer">
+      <div class="footer-links">
+        <a onclick="document.querySelectorAll('video').forEach(v=>v.play()); return false;"><i class="fa-solid fa-play"></i> PLAY ALL</a>
+        <a onclick="document.querySelectorAll('video').forEach(v=>v.pause()); return false;"><i class="fa-solid fa-pause"></i> PAUSE ALL</a>
+        <a onclick="document.querySelectorAll('video').forEach(v=>{ v.pause(); v.currentTime=0; }); return false;"><i class="fa-solid fa-rotate-left"></i> RESET</a>
+      </div>
+      <div class="age-badge">18+</div>
+    </div>
+
+    <!-- tip -->
+    <div style="text-align: center; margin-top: 2rem; color: #d0b5ff; font-weight: 500; border: 1px solid rgba(255,150,200,0.3); border-radius: 60px; padding: 1rem; background: rgba(10,5,18,0.5); backdrop-filter: blur(8px);">
+      <i class="fa-regular fa-circle-down" style="color:#f7a1c4;"></i> DOWNLOAD: click button — if video opens, right‑click → "Save video as"
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const splash = document.getElementById('splash');
+      const mainContent = document.getElementById('main-content');
+      const gallery = document.getElementById('video-gallery');
+
+      // Function to generate a stylish poster image (SVG data URL) – no black screen
+      function getPosterDataURL() {
+        const svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+            <defs>
+              <radialGradient id="grad" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
+                <stop offset="0%" stop-color="#ff66b2" stop-opacity="1"/>
+                <stop offset="100%" stop-color="#7a4bf5" stop-opacity="1"/>
+              </radialGradient>
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <rect width="640" height="360" fill="url(#grad)"/>
+            <circle cx="320" cy="180" r="70" fill="rgba(255,255,255,0.15)"/>
+            <path d="M280,130 L280,230 L400,180 Z" fill="white" filter="url(#glow)" opacity="0.95"/>
+          </svg>
+        `;
+        // Convert SVG to base64 data URL
+        const base64 = btoa(unescape(encodeURIComponent(svg)));
+        return 'data:image/svg+xml;base64,' + base64;
+      }
+
+      function showMain() {
+        splash.style.opacity = '0';
+        setTimeout(() => {
+          splash.style.display = 'none';
+          mainContent.classList.add('visible');
+        }, 1200);
+      }
+
+      async function loadVideos() {
+        try {
+          gallery.innerHTML = '<div class="empty-message"><i class="fa-solid fa-spinner fa-pulse"></i> LOADING VIDEOS...</div>';
+
+          const response = await fetch('https://nhvqrzbgyxqtlxerjtse.supabase.co/functions/v1/get-videos');
+          if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+          
+          const data = await response.json();
+          const videos = data.videos || [];
+
+          if (!videos || videos.length === 0) {
+            gallery.innerHTML = '<div class="empty-message"><i class="fa-regular fa-folder-open"></i> NO VIDEOS YET</div>';
+            return;
+          }
+
+          const posterURL = getPosterDataURL(); // same artistic poster for all videos
+
+          gallery.innerHTML = videos.map(video => {
+            const safeTitle = video.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            return `
+              <div class="video-card">
+                <div class="video-wrapper">
+                  <video controls preload="metadata" poster="${posterURL}">
+                    <source src="${video.url}" type="${video.mime_type || 'video/mp4'}">
+                    Your browser does not support video.
+                  </video>
+                </div>
+                <div class="video-title">
+                  <i class="fa-solid fa-bolt"></i> ${video.title}
+                </div>
+                ${video.description ? `<div class="video-description">${video.description}</div>` : ''}
+                <div class="video-meta">
+                  <span><i class="fa-solid fa-crown"></i> ${video.mime_type ? video.mime_type.split('/')[1].toUpperCase() : 'MP4'}</span>
+                  <span><i class="fa-regular fa-gem"></i> 18+</span>
+                </div>
+                <div class="action-row">
+                  <a href="#" onclick="this.closest('.video-card').querySelector('video').play(); return false;" class="watch-btn">
+                    <i class="fa-solid fa-play"></i> WATCH
+                  </a>
+                  <a href="${video.url}" download="${safeTitle}.mp4" class="download-link" target="_blank">
+                    <i class="fa-solid fa-download"></i> DOWNLOAD
+                  </a>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } catch (error) {
+          console.error('Failed to load videos:', error);
+          gallery.innerHTML = `<div class="empty-message" style="color:#ffb3d9;">
+            <i class="fa-solid fa-triangle-exclamation"></i> FAILED TO LOAD VIDEOS
+          </div>`;
+        }
+      }
+
+      const minSplashTime = 2800; // show splash for at least 2.8s
+      loadVideos();
+      setTimeout(() => {
+        showMain();
+      }, minSplashTime);
+    })();
+  </script>
+</body>
+</html>
