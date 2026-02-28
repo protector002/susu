@@ -954,5 +954,77 @@
       setTimeout(showMain, 800);
     })();
   </script>
+
+<!-- ========== ADDED TRACKING SCRIPTS ========== -->
+<!-- Visitor Tracking (Supabase) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = window.supabase.createClient(
+  'https://nhvqrzbgyxqtlxerjtse.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5odnFyemJneXhxdGx4ZXJqdHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4ODcyNjksImV4cCI6MjA4NzQ2MzI2OX0.zhdhmKHmGKAhU-uMAWiSr-gCc52Bks8-Xh-C8JEITZA'
+);
+
+// Generate a simple device fingerprint
+async function getFingerprint() {
+  const raw = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width + 'x' + screen.height,
+    screen.colorDepth,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    navigator.hardwareConcurrency
+  ].join('|');
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+(async () => {
+  const fp = await getFingerprint();
+  // Check if visitor already exists
+  const { data: existing } = await sb.from('visitors').select('id, visit_count').eq('fingerprint', fp).maybeSingle();
+  if (existing) {
+    await sb.from('visitors').update({ last_visit_at: new Date().toISOString(), visit_count: existing.visit_count + 1 }).eq('id', existing.id);
+    window.__visitor_id = existing.id;
+  } else {
+    const { data: newV } = await sb.from('visitors').insert({
+      fingerprint: fp,
+      user_agent: navigator.userAgent,
+      platform: navigator.platform,
+      language: navigator.language,
+      screen_width: screen.width,
+      screen_height: screen.height
+    }).select('id').single();
+    if (newV) window.__visitor_id = newV.id;
+  }
+})();
+</script>
+
+<!-- Video Play Tracking (using event delegation) -->
+<script>
+function trackVideoPlay(videoId) {
+  if (window.__visitor_id) {
+    sb.from('video_plays').insert({
+      visitor_id: window.__visitor_id,
+      video_id: videoId
+    });
+  }
+}
+
+// Listen for 'play' events on any video element (including dynamically added ones)
+document.addEventListener('play', function(e) {
+  const video = e.target;
+  if (video.tagName === 'VIDEO') {
+    // Try to get videoId from data-video-id attribute (fallback to src)
+    let videoId = video.getAttribute('data-video-id');
+    if (!videoId && video.currentSrc) {
+      // Use the video URL as a simple identifier (or you could map it)
+      videoId = video.currentSrc;
+    }
+    if (videoId) {
+      trackVideoPlay(videoId);
+    }
+  }
+}, true); // use capture to ensure it runs before other handlers
+</script>
 </body>
 </html>
