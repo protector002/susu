@@ -65,6 +65,9 @@
       --toast-bg: #1e2227;
       --shadow: 0 20px 30px -10px rgba(255,77,77,0.2);
       --focus-outline: 3px solid #ff8c42;
+      --header-blur: rgba(10, 12, 15, 0.7);
+      --card-hover-scale: 1.02;
+      --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     body.light-mode {
@@ -78,13 +81,19 @@
       --accent-solid: #ff8c42;
       --toast-bg: #ffffff;
       --shadow: 0 20px 30px -10px rgba(255,77,77,0.3);
+      --header-blur: rgba(245, 247, 250, 0.7);
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      transition: background-color 0.3s, border-color 0.2s;
+      transition: background-color 0.3s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    /* smooth scrolling */
+    html {
+      scroll-behavior: smooth;
     }
 
     /* Accessibility: focus styles */
@@ -98,6 +107,9 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     /* skip to main content link */
@@ -130,7 +142,7 @@
       justify-content: center;
       align-items: center;
       z-index: 2000;
-      transition: opacity 0.6s ease-out;
+      transition: opacity 0.8s var(--transition-bounce);
     }
     .splash-content { text-align: center; }
     .splash-18 {
@@ -138,14 +150,14 @@
       background: linear-gradient(135deg, #ff4d4d, #ff8c42);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       letter-spacing: 4px; margin-bottom: 1rem;
-      opacity: 0; animation: fadeUp 0.5s ease forwards;
+      opacity: 0; animation: fadeUpScale 0.6s var(--transition-bounce) forwards;
     }
     .splash-susu {
       font-size: 8rem; font-weight: 800;
       background: linear-gradient(135deg, #ffffff, #e0e0e0);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       letter-spacing: 8px; line-height: 1; margin: 0.5rem 0;
-      opacity: 0; animation: fadeUp 0.5s ease 0.2s forwards;
+      opacity: 0; animation: fadeUpScale 0.6s var(--transition-bounce) 0.2s forwards;
     }
     .splash-bottom {
       display: flex; justify-content: center; gap: 2rem; margin-top: 2rem;
@@ -154,29 +166,42 @@
       font-size: 2rem; font-weight: 700;
       background: linear-gradient(135deg, #ff4d4d, #ff8c42);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      opacity: 0; animation: fadeUp 0.5s ease 0.4s forwards;
+      opacity: 0; animation: fadeUpScale 0.6s var(--transition-bounce) 0.4s forwards;
     }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes fadeUpScale {
+      0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     /* main content */
     #main-content {
       opacity: 0;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.8s ease;
       max-width: 1440px;
       margin: 0 auto;
       padding: 2rem;
     }
     #main-content.visible { opacity: 1; }
 
-    /* header */
+    /* header with blur on scroll (class added by js) */
     .header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 1.5rem 0; border-bottom: 1px solid var(--border);
       margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: background-color 0.3s, backdrop-filter 0.3s, padding 0.3s;
     }
+    .header.scrolled {
+      background-color: var(--header-blur);
+      backdrop-filter: blur(12px);
+      padding: 1rem 2rem;
+      margin-top: -0.5rem;
+      border-bottom-color: transparent;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
     .logo {
       display: flex; align-items: center; gap: 1rem;
     }
@@ -184,11 +209,16 @@
       font-size: 2.5rem; font-weight: 700;
       background: linear-gradient(135deg, #ff4d4d, #ff8c42);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      transition: transform 0.2s;
+    }
+    .logo h1:hover {
+      transform: scale(1.02);
     }
     .logo span {
       background: rgba(255,255,255,0.1); padding: 0.3rem 1rem;
       border-radius: 30px; font-size: 0.9rem; font-weight: 600;
       color: #ff8c42; border: 1px solid rgba(255,140,66,0.3);
+      backdrop-filter: blur(4px);
     }
 
     /* search */
@@ -196,10 +226,11 @@
     .search-box {
       display: flex; align-items: center; background: var(--surface);
       border: 1px solid var(--border); border-radius: 40px;
-      padding: 0.4rem 0.4rem 0.4rem 1.2rem; transition: all 0.3s;
+      padding: 0.4rem 0.4rem 0.4rem 1.2rem; transition: all 0.3s var(--transition-bounce);
     }
     .search-box:focus-within {
-      border-color: #ff8c42; box-shadow: 0 0 0 3px rgba(255,140,66,0.2);
+      border-color: #ff8c42; box-shadow: 0 0 0 4px rgba(255,140,66,0.2);
+      transform: scale(1.02);
     }
     .search-box i { color: var(--text-secondary); }
     .search-box input {
@@ -211,7 +242,14 @@
       background: linear-gradient(135deg, #ff4d4d, #ff8c42);
       border: none; color: white; padding: 0.6rem 1.2rem;
       border-radius: 40px; font-weight: 600; cursor: pointer;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .search-box button:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+    .search-box button:active {
+      transform: scale(0.95);
     }
     /* Label for search (hidden visually but available for screen readers) */
     .visually-hidden {
@@ -230,18 +268,27 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 40px; padding: 0.6rem 1.2rem; cursor: pointer;
       display: flex; align-items: center; gap: 8px;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: #ff8c42;
+    }
+    .theme-toggle:active {
+      transform: translateY(0);
     }
     .filters { display: flex; gap: 0.8rem; flex-wrap: wrap; }
     .filter-btn {
       background: var(--surface); border: 1px solid var(--border);
       color: var(--text); padding: 0.6rem 1.2rem; border-radius: 30px;
       font-size: 0.9rem; font-weight: 500; cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s var(--transition-bounce);
     }
-    .filter-btn:hover { border-color: #ff8c42; }
+    .filter-btn:hover { border-color: #ff8c42; transform: translateY(-2px); }
     .filter-btn.active {
       background: linear-gradient(135deg, #ff4d4d, #ff8c42);
       border: none; color: white;
+      box-shadow: 0 4px 12px rgba(255,77,77,0.3);
     }
     .filter-btn[aria-selected="true"] {
       background: linear-gradient(135deg, #ff4d4d, #ff8c42);
@@ -257,7 +304,8 @@
       border-radius: 8px;
       color: var(--text-secondary);
       font-size: 0.95rem;
-      line-height: 1.5;
+      line-height: 1.6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .seo-intro strong {
       color: #ff8c42;
@@ -270,28 +318,49 @@
     }
     .skeleton-card {
       background: var(--surface); border-radius: 16px; padding: 1rem;
-      height: 320px; animation: pulse 1.5s infinite;
+      height: 320px; animation: shimmer 1.5s infinite;
+      background: linear-gradient(90deg, var(--surface) 25%, var(--surface-light) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
     }
-    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
 
     .video-card {
       background: var(--surface); border-radius: 16px; overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s; border: 1px solid var(--border);
+      transition: transform 0.4s var(--transition-bounce), box-shadow 0.4s, border-color 0.3s;
+      border: 1px solid var(--border);
       cursor: pointer; opacity: 0; animation: cardFadeIn 0.5s forwards;
+      will-change: transform;
     }
+    .video-card:nth-child(1) { animation-delay: 0.05s; }
+    .video-card:nth-child(2) { animation-delay: 0.1s; }
+    .video-card:nth-child(3) { animation-delay: 0.15s; }
+    .video-card:nth-child(4) { animation-delay: 0.2s; }
+    .video-card:nth-child(5) { animation-delay: 0.25s; }
+    .video-card:nth-child(6) { animation-delay: 0.3s; }
     @keyframes cardFadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
     .video-card:hover {
-      transform: translateY(-8px) scale(1.02);
+      transform: translateY(-8px) scale(var(--card-hover-scale));
       box-shadow: var(--shadow); border-color: rgba(255,140,66,0.4);
     }
-    .thumbnail-wrapper { position: relative; aspect-ratio: 16/9; background: var(--surface-light); }
-    .thumbnail-wrapper video { width: 100%; height: 100%; object-fit: cover; }
+    .thumbnail-wrapper { position: relative; aspect-ratio: 16/9; background: var(--surface-light); overflow: hidden; }
+    .thumbnail-wrapper video {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s var(--transition-bounce);
+    }
+    .video-card:hover .thumbnail-wrapper video {
+      transform: scale(1.05);
+    }
     .duration {
       position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8);
       color: white; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.8rem;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.1);
     }
     .video-info { padding: 1.5rem; }
     .video-title {
@@ -302,7 +371,13 @@
       display: flex; gap: 0.8rem;
     }
     .video-title i {
-      cursor: pointer; transition: 0.2s;
+      cursor: pointer; transition: transform 0.2s var(--transition-bounce), color 0.2s;
+    }
+    .video-title i:hover {
+      transform: scale(1.2);
+    }
+    .video-title i:active {
+      transform: scale(0.9);
     }
     .video-title i.fa-star { color: #ffd700; }
     .video-title i.fa-heart { color: #ff4d4d; }
@@ -314,6 +389,7 @@
     .quality {
       background: rgba(255,140,66,0.1); color: #ff8c42; padding: 0.2rem 0.8rem;
       border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+      backdrop-filter: blur(4px);
     }
     .size { color: var(--text-secondary); font-size: 0.8rem; }
     .tags {
@@ -322,6 +398,11 @@
     .tag {
       background: var(--surface-light); color: var(--text-secondary);
       padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.7rem;
+      transition: background 0.2s;
+    }
+    .tag:hover {
+      background: var(--accent-solid);
+      color: white;
     }
     .action-row {
       display: flex; gap: 0.8rem;
@@ -329,16 +410,18 @@
     .watch-btn, .download-btn {
       flex: 1; display: flex; align-items: center; justify-content: center;
       gap: 8px; padding: 0.8rem; border-radius: 10px; font-weight: 600;
-      text-decoration: none; transition: all 0.2s; border: none;
+      text-decoration: none; transition: all 0.3s var(--transition-bounce); border: none;
     }
     .watch-btn {
       background: linear-gradient(135deg, #ff4d4d, #ff8c42); color: white;
     }
-    .watch-btn:hover { opacity: 0.9; transform: scale(1.02); }
+    .watch-btn:hover { opacity: 0.9; transform: scale(1.02) translateY(-2px); }
+    .watch-btn:active { transform: scale(0.98); }
     .download-btn {
       background: var(--surface-light); border: 1px solid var(--border); color: var(--text);
     }
-    .download-btn:hover { background: rgba(255,140,66,0.2); border-color: #ff8c42; }
+    .download-btn:hover { background: rgba(255,140,66,0.2); border-color: #ff8c42; transform: translateY(-2px); }
+    .download-btn:active { transform: translateY(0); }
 
     /* pagination */
     .pagination {
@@ -347,6 +430,11 @@
     .page-btn {
       background: var(--surface); border: 1px solid var(--border);
       padding: 0.5rem 1.2rem; border-radius: 30px; cursor: pointer;
+      transition: all 0.2s var(--transition-bounce);
+    }
+    .page-btn:hover {
+      border-color: #ff8c42;
+      transform: translateY(-2px);
     }
     .page-btn.active { background: #ff8c42; color: black; border-color: #ff8c42; }
     .page-btn[aria-current="page"] {
@@ -357,28 +445,51 @@
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
     }
-    .modal.active { display: flex; }
+    .modal.active { display: flex; animation: modalFadeIn 0.3s var(--transition-bounce); }
     .modal[aria-hidden="true"] { display: none; }
     .modal[aria-hidden="false"] { display: flex; }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
     .modal-content {
       background: var(--surface); max-width: 800px; width: 90%; border-radius: 20px;
       padding: 2rem; max-height: 90vh; overflow-y: auto;
       position: relative;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     }
-    .modal-video { width: 100%; aspect-ratio: 16/9; margin-bottom: 1rem; }
+    .modal-video { width: 100%; aspect-ratio: 16/9; margin-bottom: 1rem; border-radius: 12px; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
     .modal-close {
       font-size: 2rem; cursor: pointer; color: var(--text-secondary);
       background: none; border: none; padding: 0.5rem;
+      transition: transform 0.2s;
+    }
+    .modal-close:hover {
+      transform: rotate(90deg);
+      color: #ff8c42;
     }
     .rating-stars {
       display: flex; gap: 0.5rem; margin: 1rem 0; font-size: 1.5rem;
       color: #ffd700; cursor: pointer;
     }
+    .rating-stars i {
+      transition: transform 0.2s, color 0.2s;
+    }
+    .rating-stars i:hover {
+      transform: scale(1.3);
+      color: #ffa500;
+    }
     .comments-section { margin-top: 2rem; }
     .comment {
       border-bottom: 1px solid var(--border); padding: 1rem 0;
+      animation: commentSlide 0.3s;
+    }
+    @keyframes commentSlide {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
     }
     .comment-author { font-weight: 600; margin-bottom: 0.2rem; }
     .comment-text { color: var(--text-secondary); }
@@ -388,10 +499,18 @@
     .add-comment input, .add-comment textarea {
       background: var(--surface-light); border: 1px solid var(--border);
       color: var(--text); padding: 0.5rem; border-radius: 8px; flex: 1 1 200px;
+      transition: border 0.2s;
+    }
+    .add-comment input:focus, .add-comment textarea:focus {
+      border-color: #ff8c42;
+      outline: none;
     }
     .add-comment button {
       background: #ff8c42; border: none; color: white; padding: 0.5rem 1rem;
-      border-radius: 8px; cursor: pointer;
+      border-radius: 8px; cursor: pointer; transition: transform 0.2s;
+    }
+    .add-comment button:hover {
+      transform: translateY(-2px);
     }
 
     /* toast (live region) */
@@ -399,7 +518,7 @@
       position: fixed; bottom: 20px; right: 20px; background: var(--toast-bg);
       border-left: 4px solid #ff8c42; padding: 1rem 1.5rem; border-radius: 8px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 4000;
-      transform: translateX(120%); transition: transform 0.3s;
+      transform: translateX(120%); transition: transform 0.4s var(--transition-bounce);
     }
     .toast.show { transform: translateX(0); }
 
@@ -412,11 +531,16 @@
     .footer-links { display: flex; gap: 2rem; }
     .footer-links a {
       color: var(--text-secondary); text-decoration: none; cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
-    .footer-links a:hover { color: #ff8c42; }
+    .footer-links a:hover { color: #ff8c42; transform: translateY(-2px); }
     .age-badge {
       background: rgba(255,77,77,0.2); border: 1px solid rgba(255,77,77,0.3);
       color: #ff4d4d; padding: 0.3rem 1.5rem; border-radius: 30px;
+      backdrop-filter: blur(4px);
     }
 
     @media (max-width: 700px) {
@@ -575,7 +699,7 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
       }
 
-      // generate poster with alt text
+      // generate poster with alt text (not used anymore, but kept for compatibility)
       function generatePosterURL(title) {
         const colors = [['#ff4d4d','#ff8c42'],['#4158D0','#C850C0'],['#0093E9','#80D0C7']];
         const hash = title.split('').reduce((a,b)=>a+b.charCodeAt(0),0);
@@ -656,7 +780,7 @@
             return `
               <article class="video-card" data-url="${v.url}" aria-labelledby="title-${v.url.replace(/[^a-zA-Z0-9]/g, '')}">
                 <div class="thumbnail-wrapper">
-                  <video preload="metadata" poster="${generatePosterURL(v.title)}" aria-label="Thumbnail for ${v.title}">
+                  <video preload="metadata" aria-label="Thumbnail for ${v.title}">
                     <source src="${v.url}" type="${v.mime_type || 'video/mp4'}">
                   </video>
                   <span class="duration" aria-hidden="true">${v.quality}</span>
@@ -954,6 +1078,162 @@
       setTimeout(showMain, 800);
     })();
   </script>
+
+<!-- ========== ADDITIONAL UI ENHANCEMENTS (scroll effect for header) ========== -->
+<script>
+  (function() {
+    // Sticky header with blur effect on scroll
+    const header = document.querySelector('.header');
+    if (header) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 10) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+    }
+
+    // Add subtle pulse to icons on click
+    document.addEventListener('click', function(e) {
+      if (e.target.matches('.fa-star, .fa-heart, .fa-regular.fa-star, .fa-regular.fa-heart')) {
+        e.target.style.animation = 'pulse 0.3s';
+        setTimeout(() => e.target.style.animation = '', 300);
+      }
+    });
+
+    // Define pulse keyframe if not already present
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+      }
+    `;
+    document.head.appendChild(style);
+  })();
+</script>
+
+<!-- ========== FIX: DEBOUNCE RESET BUTTON TO PREVENT RAPID CLICKS ========== -->
+<script>
+  (function() {
+    // Find the reset button/link (the one with "reset" text and onclick containing reset logic)
+    const resetLink = Array.from(document.querySelectorAll('.footer-links a')).find(a => a.textContent.includes('reset') || a.getAttribute('onclick')?.includes('currentTime=0'));
+    
+    if (resetLink) {
+      // Store the original onclick function (if any)
+      const originalOnClick = resetLink.onclick;
+      
+      // Remove the inline onclick to prevent double execution
+      resetLink.removeAttribute('onclick');
+      
+      // Add a debounced click handler
+      let isResetting = false;
+      resetLink.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent any default behavior
+        
+        if (isResetting) {
+          // Show a toast to indicate action is in progress (optional)
+          const toast = document.getElementById('toast');
+          if (toast) {
+            toast.textContent = 'Please wait...';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 800);
+          }
+          return;
+        }
+        
+        isResetting = true;
+        
+        // Execute the reset logic
+        document.querySelectorAll('video').forEach(v => { 
+          v.pause(); 
+          v.currentTime = 0; 
+        });
+        
+        // Re-enable after 500ms
+        setTimeout(() => {
+          isResetting = false;
+        }, 500);
+      });
+      
+      // Also handle keyboard activation (Enter/Space) since role="button"
+      resetLink.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          resetLink.click();
+        }
+      });
+    }
+  })();
+</script>
+
+<!-- ========== VIDEO PREVIEW ON HOVER ========== -->
+<script>
+  (function() {
+    // Enable video preview on hover for all video thumbnails
+    function enablePreview(videoElement) {
+      if (videoElement.dataset.previewEnabled === 'true') return;
+      videoElement.dataset.previewEnabled = 'true';
+      
+      let previewTimeout;
+      
+      videoElement.addEventListener('mouseenter', function() {
+        // Don't preview if video is already playing (e.g., from "play all")
+        if (!videoElement.paused) return;
+        
+        // Small delay to avoid accidental hovers
+        previewTimeout = setTimeout(() => {
+          // Ensure metadata is loaded, then play muted
+          if (videoElement.readyState >= 1) { // HAVE_METADATA
+            videoElement.muted = true;
+            videoElement.currentTime = 0; // start from beginning
+            videoElement.play().catch(e => {
+              // Autoplay may be blocked by browser; ignore silently
+            });
+          } else {
+            // Wait for metadata
+            videoElement.addEventListener('loadedmetadata', function onMeta() {
+              videoElement.removeEventListener('loadedmetadata', onMeta);
+              videoElement.muted = true;
+              videoElement.currentTime = 0;
+              videoElement.play().catch(e => {});
+            });
+          }
+        }, 100);
+      });
+      
+      videoElement.addEventListener('mouseleave', function() {
+        clearTimeout(previewTimeout);
+        if (!videoElement.paused) {
+          videoElement.pause();
+          videoElement.currentTime = 0; // reset to first frame
+        }
+      });
+    }
+
+    // Observe gallery for dynamically added videos
+    const gallery = document.getElementById('video-gallery');
+    if (gallery) {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1 && node.matches && node.matches('.video-card')) {
+              const video = node.querySelector('.thumbnail-wrapper video');
+              if (video) enablePreview(video);
+            }
+          });
+        });
+      });
+      
+      observer.observe(gallery, { childList: true, subtree: true });
+      
+      // Also enable on existing videos
+      document.querySelectorAll('.video-card .thumbnail-wrapper video').forEach(enablePreview);
+    }
+  })();
+</script>
 
 <!-- ========== ADDED TRACKING SCRIPTS ========== -->
 <!-- Visitor Tracking (Supabase) -->
